@@ -47,6 +47,25 @@ const OUTPUT_PATH = "/output/entry.txt";
 
 mkdirSync("/output", { recursive: true });
 
+// Guardrails: the entry must stay exactly one line, non-empty, and within
+// the 200-character limit, so a future edit can never silently break the
+// brief. Any violation fails loudly instead of writing a bad entry.
+function validateLine(line: string): void {
+  if (line.length === 0) {
+    throw new Error("Entry line must not be empty.");
+  }
+  if (line.length > 200) {
+    throw new Error(
+      `Entry line is ${line.length} characters; the limit is 200.`,
+    );
+  }
+  if (line.includes("\n") || line.includes("\r")) {
+    throw new Error("Entry line must not contain a newline.");
+  }
+}
+
+validateLine(LINE);
+
 // Written byte-exact: the line alone, no trailing newline, so the entry
 // is exactly one line of 135 characters and nothing else.
 writeFileSync(OUTPUT_PATH, LINE, "utf8");
